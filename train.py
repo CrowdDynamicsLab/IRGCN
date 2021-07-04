@@ -16,6 +16,7 @@ from data import QADataset, SubjObjDataset, get_GCN_inputs, get_GCN_inputs2, get
     sparse_mx_to_torch_sparse_tensor
 from sklearn.metrics import accuracy_score
 import warnings
+
 warnings.filterwarnings("ignore")
 import random
 
@@ -61,7 +62,7 @@ else:
 
 X = dataset.trainPairs_WFeatures
 
-## PreProcess the dataset
+# PreProcess the dataset
 cols = X.columns.drop('QTags')
 X[cols] = X[cols].apply(pd.to_numeric, errors='coerce')
 X.fillna(0, inplace=True)
@@ -78,7 +79,6 @@ kf = KFold(n_splits=5, shuffle=True)
 Dataset = np.array(QuestionId[QuestionId != 0])
 # get adj
 edges = dataset.getAdjList_clique()
-# edges2 = dataset.getAdjList_Similarity1()
 edges3 = dataset.getAdjList_Similarity2()
 edges5 = dataset.getAdjMatrix_Identity(len(X))
 Adj, rowsum = get_GCN_inputs(edges, len(X))
@@ -97,8 +97,6 @@ nHid3 = 20
 nHid4 = 10
 
 
-# gcn_model.load_state_dict(torch.load('gcn_complete2.pkl'))
-
 def rampup(epoch, scaled_unsup_weight_max, exp=5.0, rampup_length=80):
     if epoch < rampup_length:
         p = max(0.0, float(epoch)) / float(rampup_length)
@@ -114,27 +112,12 @@ def get_scaled_unsup_weight_max(num_labels=2, X_train_shape=13, unsup_weight_max
 
 lambda1, lambda2 = 0.5, 0.01
 result_list = list()
-count = 0
-# f = open("/home/junting/Downloads/GCN/UserCredibility/Accuracy-Stackexchange/Sparsity/sparse_result_1"+ args.root.split('/')[-1]+".txt" ,"w+")
-# train and test
-ARR = [0.8, 0.4, 0.2, 0.1, 0.05, 0.025, 0.01, 0.005, 0.0025, 0.001]
-count1 = 0
 try:
     for Pairs_train, Pairs_test in kf.split(Dataset):
-        count += 1
-        if count == 2:
-            print(result_list)
-            print(sum(result_list) / len(result_list))
-            # with open("/home/knarang2/induced_results/R_" + args.root.split('/')[-1] + ".txt", "w+") as f:
-            #     f.write(''.join(str(e) for e in result_list) + "\n")
-            #     f.write(str(sum(result_list) / len(result_list)))
-            # f.close()
-
-            exit()
         edges4 = dataset.getAdjList_Similarity3(Pairs_train.tolist())
         Adj4, rowsum = get_GCN_inputs3(edges4, len(X))
         X["Rating"] = dataset.Rating["Rating"]
-
+        count = 1
         if args.use_content:
             data, X_Tags_Feature2 = getPostContentEmbed(X, args.dataset)
             data2, X_Tags_Feature2 = getPostContexts(X, dataset)
@@ -161,11 +144,8 @@ try:
 
         gcn_model = GCN_adaboost(nFeat, nHid1, nHid2, nHid3, nHid4, nComm).to(device)
         criterion = nn.MSELoss()
-        # criterion =  nn.CrossEntropyLoss()
         gcn_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, gcn_model.parameters()),
                                          lr=args.learning_rate, weight_decay=args.weight_decay)
-        # gcn_model.load_state_dict(torch.load('gcn_complete2.pkl'))
-        # scheduler = torch.optim.lr_scheduler.StepLR(gcn_optimizer, step_size=50, gamma=0.01)
         trainset = torch.utils.data.TensorDataset(torch.LongTensor(Dataset[Pairs_train]).to(device),
                                                   torch.torch.LongTensor(Dataset[Pairs_train]).to(device))
         testset = torch.utils.data.TensorDataset(torch.LongTensor(Dataset[Pairs_test]).to(device),
@@ -181,16 +161,9 @@ try:
         best_accuracy = 0
         # train and test
         for epoch in range(1, args.num_epochs + 1):
-            # scheduler.step()
             train_acc = 0
-            train_acc2 = 0
-            train_acc3 = 0
-            train_acc4 = 0
-            train_acc5 = 0
-            train_acc6 = 0
             length = 0
             loss_train = 0
-
             decay = float(np.exp(-epoch / 20.0))
 
             for i, (X_train, Y_train) in enumerate(train_loader):
@@ -246,32 +219,26 @@ try:
 
                 loss_train += loss.item()
                 loss.backward(retain_graph=True)
-                # loss.backward(retain_graph=True)
                 gcn_optimizer.step()
 
-            if epoch > 0:
-                # print "GCN Weight", gcn_model.gc1.weight.data
+            if epoch % 5 == 0:
                 print("Total loss", epoch, loss_train)
                 currcorrect = evaluate_adaboost(gcn_model, test_loader, Adj, Adj2, Adj3, Adj4, Adj5, X_Tags_Feature,
                                                 rowsum, X, epoch, Target)
 
                 if currcorrect > best_accuracy:
                     best_accuracy = currcorrect
-                # if len(result_list)!=0 and best_accuracy<result_list[-1]-0.02 and epoch>350:
-                # print "########################"
 
-                print("Epoch ", epoch, "'s accuracy is", '{0:.3f}'.format(currcorrect))  # , currcorrect2)
+                print("Epoch ", epoch, "'s accuracy is", '{0:.3f}'.format(currcorrect))
                 print("best accuracy @" + str(count) + " is", "{:.4f}".format(best_accuracy))
                 train_acc = train_acc / float(length)
-                # train_acc2 = train_acc2/float(length)
-                print("Train Accuracy", train_acc)  # , train_acc2)
+                print("Train Accuracy", train_acc)
                 print(args.root)
         result_list.append(best_accuracy)
+        count += 1
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
 
 print(result_list)
 print(sum(result_list) / len(result_list))
-
-# torch.save(gcn_model.state_dict(), 'gcnmodel_'+args.root.split('/')[-1]+str(args.learning_rate)+'_adaboost'+'.pt')
