@@ -27,8 +27,10 @@ These requirements may be satisified with an updated Anaconda environment as wel
 
 Download [stackexchange dataset](https://archive.org/download/stackexchange). In the preprocess folder, run the following command to preprocess the dataset:
 
-sh extract.sh <path/to/raw/stackexchange dataset>
+```
+$ sh extract.sh <path/to/raw/stackexchange dataset>
 
+```
 The preprocessed dataset will be used as input to the model.
 
 ## Running the Model
