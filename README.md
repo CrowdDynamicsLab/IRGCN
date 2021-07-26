@@ -29,6 +29,8 @@ Download [stackexchange dataset](https://archive.org/download/stackexchange). In
 
 sh extract.sh <path/to/raw/stackexchange dataset>
 
+The preprocessed dataset will be used as input to the model.
+
 ## Running the Model
 
 ### Configure
