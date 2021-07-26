@@ -25,30 +25,27 @@ These requirements may be satisified with an updated Anaconda environment as wel
 
 ## Input Files
 
+Download [stackexchange dataset](https://archive.org/download/stackexchange). In the preprocess folder, run the following command to preprocess the dataset:
 
+sh extract.sh <path/to/raw/stackexchange dataset>
 
 ## Running the Model
 
 ### Configure
 
-The model can be configured using the file [config.ini](Codes/config.ini) present inside the [Codes](Codes/) folder. The parameters h0_size, h1_size, h2_size, and h3_size are the sizes of the hidden layers as defined in the architecture of our discriminator in the GAN framework (see figure).
-
 The other parameters to be configured are:
 
 ```
-GANLAMBDA:       Weight provided to the Adversary's Loss Term (Default = 1.0)
-NUM_EPOCH:       Number of Epochs for training (Default = 80)
-BATCH_SIZE:      Size of each batch (Default = 100)
-LEARNING_RATE:   Learning Rate of the Model (Default = 0.0001)
-model_name:      Name by which model is saved (Default = "LT_GAN")
+NUM_EPOCH:       Number of Epochs for training (Default = 500)
+BATCH_SIZE:      Size of each batch (Default = 400)
+LEARNING_RATE:   Learning Rate of the Model (Default = 0.001)
 ```
-
 
 ### Train
 
-For training the model, run the following command: 
+For training and test the model, run the following command: 
 
 ```
-$ python2.7 train.py <path/to/input/folder>
+$ python train.py --dataset <path/to/input/folder>
 ```
 
