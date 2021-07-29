@@ -3,7 +3,7 @@
 This repository contains codes of Induced Relational GCN(IR-GCN).
 
 If this code helps you in your research, please cite the following publication: 
-
+[Ranking User-Generated Content via Multi-Relational Graph Convolution]https://dl.acm.org/doi/abs/10.1145/3404835.3462857
 
 ## Getting Started
 
@@ -15,7 +15,7 @@ These instructions will help you setup the proposed model on your local machine.
 
 ### Prerequisites
 Our framework can be compiled on Python 3.6+ environments with the following modules installed:
-- [tensorflow](https://www.tensorflow.org/)
+- [tensorflow(1.3+)](https://www.tensorflow.org/)
 - [numpy](http://www.numpy.org/)
 - [scipy](https://www.scipy.org/)
 - [pandas](https://pandas.pydata.org/)
