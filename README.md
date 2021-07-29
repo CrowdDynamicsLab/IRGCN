@@ -3,6 +3,7 @@
 This repository contains codes of Induced Relational GCN(IR-GCN).
 
 If this code helps you in your research, please cite the following publication: 
+
 [Ranking User-Generated Content via Multi-Relational Graph Convolution](https://dl.acm.org/doi/abs/10.1145/3404835.3462857)
 
 ## Getting Started
